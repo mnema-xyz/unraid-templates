@@ -1,0 +1,184 @@
+# Mnema Talk on Unraid: app + PostgreSQL + SeaweedFS (S3 media storage).
+# Derived from the official docker-compose.yml of mnema-xyz/talk, trimmed for
+# Unraid: released image (no build), data in bind mounts under appdata, no
+# updater sidecar (update through Unraid / Compose Manager instead).
+#
+# Used two ways:
+#   - as the Community Apps compose package (Unraid 8): the template's fields
+#     become the variables below;
+#   - with the Compose Manager plugin: copy this file and .env.example into a
+#     stack, rename .env.example to .env and fill in the five required values.
+#
+# REQUIRED: PUBLIC_URL, JWT_SECRET, POSTGRES_PASSWORD, S3_SECRET_KEY, and
+# ADMIN_INITIAL_PASSWORD on the first start. Generate secrets with
+# `openssl rand -hex 32`.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  app:
+    image: ${MNEMA_IMAGE:-ghcr.io/mnema-xyz/mnema-talk:3.3}
+    container_name: mnema-talk
+    restart: unless-stopped
+    ports:
+      # Web app and API. Put your reverse proxy in front for HTTPS; never
+      # forward this port on your router.
+      - "${PUBLISH_ADDR:-0.0.0.0}:${PORT:-8080}:8080"
+      # Voice, video and screen share: forward this UDP range on your router.
+      - "${WEBRTC_UDP_PORT_MIN:-50000}-${WEBRTC_UDP_PORT_MAX:-50050}:${WEBRTC_UDP_PORT_MIN:-50000}-${WEBRTC_UDP_PORT_MAX:-50050}/udp"
+      # Built-in TURN relay for members whose network blocks the UDP range.
+      - "${WEBRTC_BUILTIN_TURN_PORT:-3479}:${WEBRTC_BUILTIN_TURN_PORT:-3479}/udp"
+      - "${WEBRTC_BUILTIN_TURN_PORT:-3479}:${WEBRTC_BUILTIN_TURN_PORT:-3479}/tcp"
+    environment:
+      - PORT=8080
+      - APP_ENV=production
+      - PUBLIC_URL=${PUBLIC_URL:?set PUBLIC_URL, the address people open, e.g. https://talk.example.com}
+      - TRUSTED_PROXY_CIDRS=${TRUSTED_PROXY_CIDRS:-}
+      - JWT_SECRET=${JWT_SECRET:?set JWT_SECRET (openssl rand -hex 32)}
+      - DATABASE_URL=postgres://mnema:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/mnema_talk?sslmode=disable
+      - S3_ENDPOINT=http://seaweedfs:8333
+      - S3_REGION=us-east-1
+      - S3_BUCKET=mnema-media
+      - S3_ACCESS_KEY=mnema_admin
+      - S3_SECRET_KEY=${S3_SECRET_KEY:?set S3_SECRET_KEY (openssl rand -hex 32)}
+      - S3_FORCE_PATH_STYLE=true
+      - MAX_UPLOAD_SIZE_MB=${MAX_UPLOAD_SIZE_MB:-50}
+      - BACKUP_STATUS_FILE=
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_INITIAL_PASSWORD=${ADMIN_INITIAL_PASSWORD:-}
+      - INITIAL_LANGUAGE=${INITIAL_LANGUAGE:-en}
+      - WEBRTC_UDP_PORT_MIN=${WEBRTC_UDP_PORT_MIN:-50000}
+      - WEBRTC_UDP_PORT_MAX=${WEBRTC_UDP_PORT_MAX:-50050}
+      - WEBRTC_NAT_1TO1_IP=${WEBRTC_NAT_1TO1_IP:-}
+      - WEBRTC_LAN_IP=${WEBRTC_LAN_IP:-}
+      - WEBRTC_BUILTIN_TURN_PORT=${WEBRTC_BUILTIN_TURN_PORT:-3479}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-}
+      - SMTP_TLS=${SMTP_TLS:-starttls}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM=${SMTP_FROM:-}
+      - UPDATE_CHECK_ENABLED=${UPDATE_CHECK_ENABLED:-true}
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - "no-new-privileges:true"
+    mem_limit: ${APP_MEM_LIMIT:-1g}
+    pids_limit: 512
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/api/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+    networks:
+      - mnema-network
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: mnema-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mnema
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: mnema_talk
+    volumes:
+      - ${MNEMA_APPDATA:-/mnt/user/appdata/mnema-talk}/postgres:/var/lib/postgresql
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+      - /run/postgresql:size=8m
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - "no-new-privileges:true"
+    mem_limit: ${POSTGRES_MEM_LIMIT:-1g}
+    pids_limit: 256
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnema -d mnema_talk"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mnema-network
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.53
+    container_name: mnema-seaweedfs
+    restart: unless-stopped
+    environment:
+      - S3_ACCESS_KEY=mnema_admin
+      - S3_SECRET_KEY=${S3_SECRET_KEY:?set S3_SECRET_KEY}
+    # Writes the S3 identity file from the environment (the gateway must not
+    # serve anonymous access), then starts the all-in-one server.
+    entrypoint:
+      - sh
+      - -c
+      - |
+        case "$$S3_SECRET_KEY" in
+          *[!A-Za-z0-9._~+/=-]*)
+            echo "S3_SECRET_KEY may only contain letters, digits and . _ ~ + / = -" >&2
+            exit 1 ;;
+        esac
+        if [ "$${#S3_SECRET_KEY}" -lt 8 ]; then
+          echo "S3_SECRET_KEY must be at least 8 characters" >&2
+          exit 1
+        fi
+        umask 077
+        cat > /tmp/s3.json <<EOF
+        {
+          "identities": [
+            {
+              "name": "mnema",
+              "credentials": [{"accessKey": "$$S3_ACCESS_KEY", "secretKey": "$$S3_SECRET_KEY"}],
+              "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+            }
+          ]
+        }
+        EOF
+        exec weed server -s3 -s3.port=8333 -s3.config=/tmp/s3.json -dir=/data
+    volumes:
+      - ${MNEMA_APPDATA:-/mnt/user/appdata/mnema-talk}/seaweedfs:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m
+    cap_drop:
+      - ALL
+    cap_add:
+      - DAC_OVERRIDE
+    security_opt:
+      - "no-new-privileges:true"
+    mem_limit: ${SEAWEEDFS_MEM_LIMIT:-1g}
+    pids_limit: 256
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9333/cluster/status >/dev/null && wget -qO- http://127.0.0.1:8333/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+    networks:
+      - mnema-network
+
+networks:
+  mnema-network:
+    driver: bridge

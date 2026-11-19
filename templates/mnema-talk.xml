@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Mnema-Talk</Name>
+  <Repository>ghcr.io/mnema-xyz/mnema-talk:3.3</Repository>
+  <Registry>https://github.com/mnema-xyz/talk/pkgs/container/mnema-talk</Registry>
+  <AppTemplateType>compose</AppTemplateType>
+  <ComposeSourceRepository>mnema-xyz/unraid-templates</ComposeSourceRepository>
+  <ComposeProjectPath>mnema-talk</ComposeProjectPath>
+  <ComposeSourceCommit>PIN_COMMIT_SHA_HERE</ComposeSourceCommit>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mnema-xyz/talk/issues</Support>
+  <Project>https://mnema.xyz</Project>
+  <ReadMe>https://github.com/mnema-xyz/talk/blob/main/doc/unraid.md</ReadMe>
+  <TemplateURL>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/templates/mnema-talk.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <License>AGPL-3.0</License>
+  <Category>Network:Messenger Network:Voip</Category>
+  <ExtraSearchTerms>chat voice video screen share talk team community self-hosted</ExtraSearchTerms>
+  <Overview>Your own place to hang out: text channels, drop-in voice Talks, video and screen sharing up to 4K at 60 FPS. One small self-hosted server for one community, on your own hardware, with your data staying with you. This template installs the whole stack in one go: Mnema Talk, PostgreSQL and SeaweedFS (media storage). Needs Unraid 8 or newer. Put a reverse proxy with HTTPS in front (for example Nginx Proxy Manager) and forward the voice ports on your router. Full guide: https://github.com/mnema-xyz/talk/blob/main/doc/unraid.md</Overview>
+  <Description>Mnema Talk is a small, self-hosted home for one community.&#xD;
+&#xD;
+- Text channels, threads, DMs, polls, events and a wiki&#xD;
+- Drop-in voice Talks, video and screen share up to 4K at 60 FPS&#xD;
+- Web app, desktop app and bots, one Go binary&#xD;
+- Runs fine on a NAS: Mnema Talk + PostgreSQL + SeaweedFS, installed together&#xD;
+&#xD;
+**Before you start:** you need a domain with HTTPS (reverse proxy) and three router forwards (HTTPS, the UDP voice range 50000-50050 and port 3479 UDP and TCP). Never forward the web port itself. Generate each secret below with `openssl rand -hex 32`.</Description>
+  <Config Name="Public URL" Target="PUBLIC_URL" Default="https://talk.example.com" Mode="" Description="The address people open in their browser, with https://. Required." Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="Web UI port" Target="PORT" Default="8080" Mode="tcp" Description="Port of the web app on this server. Point your reverse proxy at it. Never forward it on your router." Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="Voice UDP port min" Target="WEBRTC_UDP_PORT_MIN" Default="50000" Mode="udp" Description="First port of the UDP range for voice, video and screen share. Forward the range on your router." Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="Voice UDP port max" Target="WEBRTC_UDP_PORT_MAX" Default="50050" Mode="udp" Description="Last port of the UDP range." Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="Voice relay port" Target="WEBRTC_BUILTIN_TURN_PORT" Default="3479" Mode="udp" Description="Relay for members whose network blocks the UDP range (UDP and TCP). Forward it on your router." Type="Port" Display="always" Required="true" Mask="false"/>
+  <Config Name="Appdata path" Target="MNEMA_APPDATA" Default="/mnt/user/appdata/mnema-talk" Mode="rw" Description="Where PostgreSQL and the media store keep their data. A cache-only path (for example /mnt/cache/appdata/mnema-talk) is faster for the database." Type="Path" Display="always" Required="true" Mask="false"/>
+  <Config Name="Admin username" Target="ADMIN_USERNAME" Default="admin" Mode="" Description="Name of the first admin account, created on the first start." Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="Admin password" Target="ADMIN_INITIAL_PASSWORD" Default="" Mode="" Description="Password of the first admin account. Used once, on the first start; change it after you log in. Required." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="JWT secret" Target="JWT_SECRET" Default="" Mode="" Description="Signs login sessions. Required: paste the output of openssl rand -hex 32. Keep it; changing it logs everyone out." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Database password" Target="POSTGRES_PASSWORD" Default="" Mode="" Description="Password of the PostgreSQL user. Required: paste the output of openssl rand -hex 32. Set it before the first start; it cannot be changed afterwards by editing this field." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Media storage secret" Target="S3_SECRET_KEY" Default="" Mode="" Description="Secret key of the media store. Required: letters and digits only, at least 8 characters, e.g. openssl rand -hex 32." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Language" Target="INITIAL_LANGUAGE" Default="en" Mode="" Description="Default language of the server: en or de." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Reverse proxy address" Target="TRUSTED_PROXY_CIDRS" Default="" Mode="" Description="Address of your reverse proxy container (for example 172.17.0.5), so real visitor addresses reach the server. One address, never a whole range." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Public IP or DynDNS name" Target="WEBRTC_NAT_1TO1_IP" Default="" Mode="" Description="Only if voice does not connect from outside: your public IP or DynamicDNS name. Empty = detected automatically." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Max upload (MB)" Target="MAX_UPLOAD_SIZE_MB" Default="50" Mode="" Description="Largest file a member can upload." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="SMTP host" Target="SMTP_HOST" Default="" Mode="" Description="Outgoing mail server for address confirmation and password reset. Empty = no e-mail." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="SMTP port" Target="SMTP_PORT" Default="" Mode="" Description="Usually 587 (starttls) or 465 (tls)." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="SMTP username" Target="SMTP_USERNAME" Default="" Mode="" Description="Mail account name." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="SMTP password" Target="SMTP_PASSWORD" Default="" Mode="" Description="Mail account password." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+  <Config Name="SMTP from" Target="SMTP_FROM" Default="" Mode="" Description="Sender address, for example talk@example.com." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+</Container>
