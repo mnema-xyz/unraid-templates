@@ -13,14 +13,14 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/mnema-xyz/talk/issues</Support>
   <Project>https://mnema.xyz</Project>
-  <ReadMe>https://github.com/mnema-xyz/talk/blob/main/doc/unraid.md</ReadMe>
+  <ReadMe>https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps</ReadMe>
   <TemplateURL>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/templates/mnema-talk.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/icon.png</Icon>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
   <License>AGPL-3.0</License>
   <Category>Network:Messenger Network:Voip</Category>
   <ExtraSearchTerms>chat voice video screen share talk team community self-hosted</ExtraSearchTerms>
-  <Overview>Your own place to hang out: text channels, drop-in voice Talks, video and screen sharing up to 4K at 60 FPS. One small self-hosted server for one community, on your own hardware, with your data staying with you. This template installs the whole stack in one go: Mnema Talk, PostgreSQL and SeaweedFS (media storage). Needs Unraid 8 or newer. Put a reverse proxy with HTTPS in front (for example Nginx Proxy Manager) and forward the voice ports on your router. Full guide: https://github.com/mnema-xyz/talk/blob/main/doc/unraid.md</Overview>
+  <Overview>Your own place to hang out: text channels, drop-in voice Talks, video and screen sharing up to 4K at 60 FPS. One small self-hosted server for one community, on your own hardware, with your data staying with you. This template installs the whole stack in one go: Mnema Talk, PostgreSQL and SeaweedFS (media storage). Needs Unraid 8 or newer. Put a reverse proxy with HTTPS in front (for example Nginx Proxy Manager) and forward the voice ports on your router. Full guide: https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps</Overview>
   <Description>Mnema Talk is a small, self-hosted home for one community.&#xD;
 &#xD;
 - Text channels, threads, DMs, polls, events and a wiki&#xD;

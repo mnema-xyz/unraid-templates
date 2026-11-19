@@ -7,7 +7,7 @@ screen sharing.
 Mnema Talk needs PostgreSQL and S3-compatible storage (SeaweedFS), so the
 template installs the whole stack as one Community Apps **compose package**
 (Unraid 8 or newer). On Unraid 7 use the Compose Manager route in the
-[install guide](https://github.com/mnema-xyz/talk/blob/main/doc/unraid.md).
+[install guide](https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps).
 
 | Path | What |
 |---|---|
