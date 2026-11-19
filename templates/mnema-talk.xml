@@ -6,7 +6,7 @@
   <AppTemplateType>compose</AppTemplateType>
   <ComposeSourceRepository>mnema-xyz/unraid-templates</ComposeSourceRepository>
   <ComposeProjectPath>mnema-talk</ComposeProjectPath>
-  <ComposeSourceCommit>PIN_COMMIT_SHA_HERE</ComposeSourceCommit>
+  <ComposeSourceCommit>d4fe80902ea4fa1aca14656275a863c1e1689a7c</ComposeSourceCommit>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>sh</Shell>
