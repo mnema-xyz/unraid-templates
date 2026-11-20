@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Mnemo</Name>
+  <Repository>ghcr.io/mnema-xyz/mnemo:0.1</Repository>
+  <Registry>https://github.com/mnema-xyz/talk-mnemo-bot/pkgs/container/mnemo</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mnema-xyz/talk-mnemo-bot/issues</Support>
+  <Project>https://mnema.xyz</Project>
+  <ReadMe>https://github.com/mnema-xyz/talk-mnemo-bot/blob/main/README.md#install-on-unraid</ReadMe>
+  <TemplateURL>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/templates/mnemo.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/icon-mnemo.png</Icon>
+  <ExtraParams>--user 0:0 --read-only --cap-drop=ALL --security-opt=no-new-privileges:true --tmpfs /tmp</ExtraParams>
+  <License>MIT</License>
+  <Category>Network:Messenger Tools:</Category>
+  <ExtraSearchTerms>ai assistant bot chatbot llm claude openai ollama mnema talk</ExtraSearchTerms>
+  <Overview>The helper bot for your Mnema Talk server. Ask it in chat and it answers with live weather, exact maths, time zones, unit conversion and Wikipedia. You bring your own AI provider and key (Anthropic, OpenAI, or a local model through an OpenAI-compatible server such as Ollama); there are daily token and cost limits so the bill stays boring. Needs a Mnema Talk server 3.1 or newer on which you are the owner. Add Mnemo in Talk first (Admin area, Bots), copy the token, then fill in this template. Guide: https://github.com/mnema-xyz/talk-mnemo-bot/blob/main/README.md#install-on-unraid</Overview>
+  <Description>Mnemo is a self-hosted AI helper for Mnema Talk.&#xD;
+&#xD;
+- Mention it or use /ask: weather, calculator, time zones, units, Wikipedia&#xD;
+- Threads with memory, Regenerate and Follow up buttons&#xD;
+- Your provider, your key: Anthropic, OpenAI or a local model&#xD;
+- Per-member and per-channel rate limits and a daily token or cost budget&#xD;
+- Admin-only /details shows what was sent where&#xD;
+&#xD;
+**Before you start:** add Mnemo to your Talk server under Admin area, Bots (Add from manifest) and copy the bot token, which is shown once. No AI account yet? Set the provider to fake for a dry run that costs nothing.</Description>
+  <Config Name="Talk server URL" Target="MNEMA_URL" Default="https://talk.example.com" Mode="" Description="The public address of your Mnema Talk server, the one members open. Required." Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="Bot token" Target="MNEMA_TOKEN" Default="" Mode="" Description="The bot token Talk showed once when you added Mnemo (Admin area, Bots). Required." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="AI provider" Target="MNEMO_PROVIDER" Default="anthropic|openai|openai-compatible|fake" Mode="" Description="anthropic (default), openai, openai-compatible (Ollama, OpenRouter, LM Studio, vLLM) or fake (no AI, echoes the question, for a free dry run)." Type="Variable" Display="always" Required="true" Mask="false">anthropic</Config>
+  <Config Name="AI API key" Target="MNEMO_API_KEY" Default="" Mode="" Description="Your key from the provider's console. Not needed for a local server or the fake provider." Type="Variable" Display="always" Required="false" Mask="true"/>
+  <Config Name="AI model" Target="MNEMO_MODEL" Default="" Mode="" Description="Empty = claude-haiku-5-5 for Anthropic (fast, cheapest). Required for the other providers, for example gpt-5-mini or an Ollama model name." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Provider base URL" Target="MNEMO_BASE_URL" Default="" Mode="" Description="Required for openai-compatible, for example http://192.168.1.10:11434/v1 for Ollama. Leave empty otherwise." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Appdata path" Target="/data" Default="/mnt/user/appdata/mnemo" Mode="rw" Description="Keeps the day's token count across restarts, so a restart cannot reset the budget." Type="Path" Display="always" Required="true" Mask="false"/>
+  <Config Name="Daily token budget" Target="MNEMO_DAILY_TOKEN_BUDGET" Default="1000000" Mode="" Description="Tokens (input and output) per UTC day; 0 = no limit. The default is roughly ten cents a day on the default model." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Daily cost budget (USD)" Target="MNEMO_DAILY_COST_BUDGET_USD" Default="0" Mode="" Description="US dollars per UTC day; 0 = no limit." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Questions per member per minute" Target="MNEMO_MEMBER_LIMIT_PER_MINUTE" Default="5" Mode="" Description="0 = no limit." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Questions per channel per minute" Target="MNEMO_CHANNEL_LIMIT_PER_MINUTE" Default="20" Mode="" Description="0 = no limit." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Allowed channels" Target="MNEMO_ALLOWED_CHANNELS" Default="" Mode="" Description="Comma-separated channel IDs where Mnemo answers. Empty = every channel it can see." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Send display name" Target="MNEMO_SEND_DISPLAY_NAME" Default="false|true" Mode="" Description="Tell the AI provider the asker's display name." Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+  <Config Name="Read attachments" Target="MNEMO_ATTACHMENTS_ENABLED" Default="true|false" Mode="" Description="Let Mnemo read images, PDFs and text files up to 10 MB, after the owner of the file consents." Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="Web search provider" Target="MNEMO_SEARCH_PROVIDER" Default="|brave|tavily" Mode="" Description="Optional web search. Needs the search key below; empty = off." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Web search API key" Target="MNEMO_SEARCH_API_KEY" Default="" Mode="" Description="Key of the search provider." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+</Container>

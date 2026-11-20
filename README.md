@@ -1,8 +1,13 @@
-# Mnema Talk for Unraid
+# Mnema for Unraid
 
 Community Apps templates for [Mnema Talk](https://mnema.xyz), a small
-self-hosted home for one community: text channels, drop-in voice Talks and
-screen sharing.
+self-hosted home for one community (text channels, drop-in voice Talks and
+screen sharing), and for **Mnemo**, its self-hosted AI helper bot.
+
+| App | Template | Needs | Guide |
+|---|---|---|---|
+| Mnema Talk | `templates/mnema-talk.xml` | Unraid 8+ (compose package; Compose Manager on Unraid 7) | [install guide](https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps) |
+| Mnemo | `templates/mnemo.xml` | a Talk server 3.1+, an AI provider key | [install guide](https://github.com/mnema-xyz/talk-mnemo-bot/blob/main/README.md#install-on-unraid) |
 
 Mnema Talk needs PostgreSQL and S3-compatible storage (SeaweedFS), so the
 template installs the whole stack as one Community Apps **compose package**
@@ -11,10 +16,12 @@ template installs the whole stack as one Community Apps **compose package**
 
 | Path | What |
 |---|---|
-| `templates/mnema-talk.xml` | the Community Apps template |
+| `templates/mnema-talk.xml` | the Talk Community Apps template |
+| `templates/mnemo.xml` | the Mnemo Community Apps template (single container) |
 | `mnema-talk/compose.yaml` | the stack the template installs (app, PostgreSQL, SeaweedFS) |
 | `mnema-talk/.env.example` | the same settings for Compose Manager |
-| `ca_profile.xml`, `icon.png` | repository profile and icon (256x256) |
+| `ca_profile.xml` | repository profile |
+| `icon.png`, `icon-mnemo.png` | app icons (256x256) |
 | `pin-commit.sh` | pins the template to the commit of `mnema-talk/` |
 
-Support: [GitHub issues](https://github.com/mnema-xyz/talk/issues). License: AGPL-3.0.
+Support: [Talk issues](https://github.com/mnema-xyz/talk/issues), [Mnemo issues](https://github.com/mnema-xyz/talk-mnemo-bot/issues). License: AGPL-3.0 (Mnema Talk); Mnemo is MIT.
