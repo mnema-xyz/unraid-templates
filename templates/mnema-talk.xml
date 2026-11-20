@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Mnema-Talk</Name>
+  <Repository>ghcr.io/mnema-xyz/mnema-talk:3.3</Repository>
+  <Registry>https://github.com/mnema-xyz/talk/pkgs/container/mnema-talk</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mnema-xyz/talk/issues</Support>
+  <Project>https://mnema.xyz</Project>
+  <ReadMe>https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps</ReadMe>
+  <TemplateURL>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/templates/mnema-talk.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/icon.png</Icon>
+  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <ExtraParams>--read-only --tmpfs /tmp:size=64m --cap-drop=ALL --security-opt=no-new-privileges:true --memory=1g --pids-limit=512</ExtraParams>
+  <License>AGPL-3.0</License>
+  <Category>Network:Messenger Network:Voip</Category>
+  <ExtraSearchTerms>chat voice video screen share talk team community self-hosted</ExtraSearchTerms>
+  <Requires>PostgreSQL 18 and an S3 media store, each in its own container. Install them first: the postgresql18 app from jj9987 (official postgres:18 image) and SeaweedFS-Mnema from this repository. Then you need a domain with HTTPS through a reverse proxy. Guide: https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps</Requires>
+  <Overview>Your own place to hang out: text channels, drop-in voice Talks, video and screen sharing up to 4K at 60 FPS. One small self-hosted server for one community, on your own hardware, with your data staying with you. Mnema Talk keeps its data in PostgreSQL 18 and its media in S3 storage: install the postgresql18 app from jj9987 and SeaweedFS-Mnema first, then this one. Put a reverse proxy with HTTPS in front (for example Nginx Proxy Manager) and forward the voice ports on your router. Guide: https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps</Overview>
+  <Description>Mnema Talk is a small, self-hosted home for one community.&#xD;
+&#xD;
+- Text channels, threads, DMs, polls, events and a wiki&#xD;
+- Drop-in voice Talks, video and screen share up to 4K at 60 FPS&#xD;
+- Web app, desktop app and bots, one Go binary&#xD;
+- Runs fine on a NAS next to PostgreSQL and SeaweedFS&#xD;
+&#xD;
+**Before you start:** install the postgresql18 app from jj9987 (user mnema, database mnema_talk) and SeaweedFS-Mnema. You need a domain with HTTPS (reverse proxy) and three router forwards: HTTPS, the UDP voice range 50000-50050 and port 3479 UDP and TCP. Never forward the web port itself. Generate each secret with `openssl rand -hex 32`.</Description>
+  <Config Name="Public URL" Target="PUBLIC_URL" Default="https://talk.example.com" Mode="" Description="The address people open in their browser, with https://. Required." Type="Variable" Display="always" Required="true" Mask="false"/>
+  <Config Name="Web UI port" Target="8080" Default="8080" Mode="tcp" Description="Port of the web app. Point your reverse proxy at it. Never forward it on your router." Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  <Config Name="Voice UDP ports" Target="50000-50050" Default="50000-50050" Mode="udp" Description="UDP range for voice, video and screen share. Forward it on your router. Keep the host ports equal to the container ports." Type="Port" Display="always" Required="true" Mask="false">50000-50050</Config>
+  <Config Name="Voice relay port (UDP)" Target="3479" Default="3479" Mode="udp" Description="Relay for members whose network blocks the UDP range. Forward it on your router. Keep the host port equal to the container port." Type="Port" Display="always" Required="true" Mask="false">3479</Config>
+  <Config Name="Voice relay port (TCP)" Target="3479" Default="3479" Mode="tcp" Description="The same relay over TCP. Forward it on your router too." Type="Port" Display="always" Required="true" Mask="false">3479</Config>
+  <Config Name="Database URL" Target="DATABASE_URL" Default="" Mode="" Description="Connection to PostgreSQL 18. Required. Format: postgres://mnema:DB-PASSWORD@UNRAID-IP:5432/mnema_talk?sslmode=disable (user, password and database as set in the postgresql18 app)." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Media storage address" Target="S3_ENDPOINT" Default="http://192.168.1.10:8333" Mode="" Description="S3 address of SeaweedFS-Mnema: http://UNRAID-IP:8333. Required." Type="Variable" Display="always" Required="true" Mask="false">http://192.168.1.10:8333</Config>
+  <Config Name="Media storage access key" Target="S3_ACCESS_KEY" Default="mnema" Mode="" Description="The access key set in SeaweedFS-Mnema. Required." Type="Variable" Display="always" Required="true" Mask="false">mnema</Config>
+  <Config Name="Media storage secret key" Target="S3_SECRET_KEY" Default="" Mode="" Description="The secret key set in SeaweedFS-Mnema. Required." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="JWT secret" Target="JWT_SECRET" Default="" Mode="" Description="Signs login sessions. Required: paste the output of openssl rand -hex 32. Keep it; changing it logs everyone out." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Admin username" Target="ADMIN_USERNAME" Default="admin" Mode="" Description="Name of the first admin account, created on the first start." Type="Variable" Display="always" Required="true" Mask="false">admin</Config>
+  <Config Name="Admin password" Target="ADMIN_INITIAL_PASSWORD" Default="" Mode="" Description="Password of the first admin account. Used once, on the first start; change it after you log in. Required." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Media bucket" Target="S3_BUCKET" Default="mnema-media" Mode="" Description="Bucket for uploads; created on the first start." Type="Variable" Display="advanced" Required="false" Mask="false">mnema-media</Config>
+  <Config Name="Media storage region" Target="S3_REGION" Default="us-east-1" Mode="" Description="Leave as is for SeaweedFS." Type="Variable" Display="advanced" Required="false" Mask="false">us-east-1</Config>
+  <Config Name="Language" Target="INITIAL_LANGUAGE" Default="en|de" Mode="" Description="Default language of the server." Type="Variable" Display="advanced" Required="false" Mask="false">en</Config>
+  <Config Name="Reverse proxy address" Target="TRUSTED_PROXY_CIDRS" Default="" Mode="" Description="Address of your reverse proxy container (for example 172.17.0.5), so real visitor addresses reach the server. One address, never a whole range." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Public IP or DynDNS name" Target="WEBRTC_NAT_1TO1_IP" Default="" Mode="" Description="Only if voice does not connect from outside: your public IP or DynamicDNS name. Empty = detected automatically." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Unraid LAN IP" Target="WEBRTC_LAN_IP" Default="" Mode="" Description="The Unraid server's LAN address, so members at home reach voice without NAT loopback on the router." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="Voice UDP port min" Target="WEBRTC_UDP_PORT_MIN" Default="50000" Mode="" Description="Change only together with the Voice UDP ports above." Type="Variable" Display="advanced" Required="false" Mask="false">50000</Config>
+  <Config Name="Voice UDP port max" Target="WEBRTC_UDP_PORT_MAX" Default="50050" Mode="" Description="Change only together with the Voice UDP ports above." Type="Variable" Display="advanced" Required="false" Mask="false">50050</Config>
+  <Config Name="Voice relay port number" Target="WEBRTC_BUILTIN_TURN_PORT" Default="3479" Mode="" Description="Change only together with the two voice relay ports above." Type="Variable" Display="advanced" Required="false" Mask="false">3479</Config>
+  <Config Name="Max upload (MB)" Target="MAX_UPLOAD_SIZE_MB" Default="50" Mode="" Description="Largest file a member can upload." Type="Variable" Display="advanced" Required="false" Mask="false">50</Config>
+  <Config Name="SMTP host" Target="SMTP_HOST" Default="" Mode="" Description="Outgoing mail server for address confirmation and password reset. Empty = no e-mail." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="SMTP port" Target="SMTP_PORT" Default="" Mode="" Description="Empty = 587 with starttls, 465 with tls." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="SMTP security" Target="SMTP_TLS" Default="starttls|tls" Mode="" Description="starttls for port 587, tls for port 465." Type="Variable" Display="advanced" Required="false" Mask="false">starttls</Config>
+  <Config Name="SMTP username" Target="SMTP_USERNAME" Default="" Mode="" Description="Mail account name." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="SMTP password" Target="SMTP_PASSWORD" Default="" Mode="" Description="Mail account password." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+  <Config Name="SMTP from" Target="SMTP_FROM" Default="" Mode="" Description="Sender address, for example talk@example.com." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+</Container>

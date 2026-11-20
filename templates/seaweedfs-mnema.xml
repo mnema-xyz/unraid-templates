@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>SeaweedFS-Mnema</Name>
+  <Repository>chrislusf/seaweedfs:4.54</Repository>
+  <Registry>https://hub.docker.com/r/chrislusf/seaweedfs</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/mnema-xyz/talk/issues</Support>
+  <Project>https://github.com/seaweedfs/seaweedfs</Project>
+  <ReadMe>https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps</ReadMe>
+  <TemplateURL>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/templates/seaweedfs-mnema.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/icon-seaweedfs.png</Icon>
+  <ExtraParams>--security-opt=no-new-privileges:true --cap-drop=ALL --cap-add=CHOWN --cap-add=DAC_OVERRIDE --cap-add=FOWNER --cap-add=SETGID --cap-add=SETUID</ExtraParams>
+  <PostArgs>server -ip=127.0.0.1 -ip.bind=127.0.0.1 -s3 -s3.port=8333 -s3.ip.bind=0.0.0.0 -s3.port.iceberg=0 -s3.port.lance=0</PostArgs>
+  <License>Apache-2.0</License>
+  <Category>Cloud: Tools:Utilities</Category>
+  <ExtraSearchTerms>s3 object storage media mnema talk seaweed minio</ExtraSearchTerms>
+  <Overview>The media store for Mnema Talk: the official SeaweedFS image, set up as a private S3 storage that only answers requests signed with your own access key. Uploads, avatars and attachments of your Talk server live here. Only the S3 port is published; the internal SeaweedFS services listen inside the container only, and requests without your key are refused. Install this before Mnema Talk and use the same access key and secret key in both. Guide: https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps</Overview>
+  <Description>SeaweedFS as the private S3 media store for Mnema Talk.&#xD;
+&#xD;
+- The official chrislusf/seaweedfs image, unchanged, pinned to a tested version&#xD;
+- Only the S3 port is published; every request must carry your key&#xD;
+- All data in one appdata folder&#xD;
+&#xD;
+**Before you start:** pick an access key (for example mnema) and generate a secret key with `openssl rand -hex 32`. Enter both here and the same two values in the Mnema Talk template. Never forward the S3 port on your router.</Description>
+  <Config Name="S3 port" Target="8333" Default="8333" Mode="tcp" Description="S3 endpoint for Mnema Talk, which uses http://YOUR-UNRAID-IP:8333 as its media storage address. Keep it inside your network; never forward it on your router." Type="Port" Display="always" Required="true" Mask="false">8333</Config>
+  <Config Name="Appdata path" Target="/data" Default="/mnt/user/appdata/seaweedfs-mnema" Mode="rw" Description="Where the media files are stored. Include it in your backups together with the database." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/seaweedfs-mnema</Config>
+  <Config Name="Access key" Target="AWS_ACCESS_KEY_ID" Default="mnema" Mode="" Description="Name of the S3 key, for example mnema. Required: without a key and a secret the store would accept anonymous requests. Use the same value in the Mnema Talk template." Type="Variable" Display="always" Required="true" Mask="false">mnema</Config>
+  <Config Name="Secret key" Target="AWS_SECRET_ACCESS_KEY" Default="" Mode="" Description="Required: paste the output of openssl rand -hex 32. Use the same value in the Mnema Talk template." Type="Variable" Display="always" Required="true" Mask="true"/>
+</Container>

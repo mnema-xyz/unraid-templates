@@ -1,5 +1,5 @@
 <CommunityApplications>
-  <Profile>Unraid templates for Mnema Talk, a small self-hosted home for one community (text channels, drop-in voice Talks and screen sharing), and Mnemo, its self-hosted AI helper bot. Maintained by the Mnema project. Support questions go to the GitHub issues of mnema-xyz/talk and mnema-xyz/talk-mnemo-bot.</Profile>
+  <Profile>Unraid templates for Mnema Talk, a small self-hosted home for one community (text channels, drop-in voice Talks and screen sharing), for SeaweedFS-Mnema, its private S3 media store, and for Mnemo, its self-hosted AI helper bot. Maintained by the Mnema project. Mnema Talk needs PostgreSQL 18 (the postgresql18 app from jj9987) and SeaweedFS-Mnema, installed first. Support questions go to the GitHub issues of mnema-xyz/talk and mnema-xyz/talk-mnemo-bot.</Profile>
   <Icon>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/icon.png</Icon>
   <WebPage>https://mnema.xyz</WebPage>
 </CommunityApplications>
