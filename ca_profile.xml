@@ -1,6 +1,5 @@
 <CommunityApplications>
-  <Profile>Unraid templates for Mnema Talk, a small self-hosted home for one community (text channels, drop-in voice Talks and screen sharing), and Mnemo, its self-hosted AI helper bot. Maintained by the Mnema project. Support questions go to the forum thread or the GitHub issues of mnema-xyz/talk and mnema-xyz/talk-mnemo-bot.</Profile>
+  <Profile>Unraid templates for Mnema Talk, a small self-hosted home for one community (text channels, drop-in voice Talks and screen sharing), and Mnemo, its self-hosted AI helper bot. Maintained by the Mnema project. Support questions go to the GitHub issues of mnema-xyz/talk and mnema-xyz/talk-mnemo-bot.</Profile>
   <Icon>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/icon.png</Icon>
   <WebPage>https://mnema.xyz</WebPage>
-  <Forum>https://forums.unraid.net/topic/SUPPORT_THREAD_ID_HERE</Forum>
 </CommunityApplications>
