@@ -12,7 +12,7 @@
   <ReadMe>https://github.com/mnema-xyz/talk/blob/main/doc/platform-notes.md#install-on-unraid-via-community-apps</ReadMe>
   <TemplateURL>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/templates/seaweedfs-mnema.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/mnema-xyz/unraid-templates/main/icon-seaweedfs.png</Icon>
-  <ExtraParams>--security-opt=no-new-privileges:true --cap-drop=ALL --cap-add=CHOWN --cap-add=DAC_OVERRIDE --cap-add=FOWNER --cap-add=SETGID --cap-add=SETUID</ExtraParams>
+  <ExtraParams>--security-opt=no-new-privileges:true --cap-drop=ALL --cap-add=CHOWN --cap-add=DAC_OVERRIDE --cap-add=FOWNER --cap-add=SETGID --cap-add=SETUID --health-cmd='wget -qO /dev/null http://127.0.0.1:8333/healthz' --health-interval=10s --health-timeout=5s --health-retries=6 --health-start-period=15s</ExtraParams>
   <PostArgs>server -ip=127.0.0.1 -ip.bind=127.0.0.1 -s3 -s3.port=8333 -s3.ip.bind=0.0.0.0 -s3.port.iceberg=0 -s3.port.lance=0</PostArgs>
   <License>Apache-2.0</License>
   <Category>Cloud: Tools:Utilities</Category>

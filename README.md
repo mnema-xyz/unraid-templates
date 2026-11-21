@@ -19,7 +19,9 @@ order:
 
 1. **postgresql18** from *jj9987's Repository* (the official `postgres:18` image, an existing Community
    Apps template). Set *POSTGRES_USER* to `mnema`, *POSTGRES_DB* to
-   `mnema_talk` and a password from `openssl rand -hex 32`.
+   `mnema_talk` and a password from `openssl rand -hex 32`. If a container
+   named `postgresql18` already runs for another app, give this one its own
+   name (for example `postgresql18-mnema`) and its own data path.
 2. **SeaweedFS-Mnema** (this repository): the official `chrislusf/seaweedfs`
    image as a private S3 store. Pick an access key and a secret key. Only the
    S3 port is published, and it refuses every request without the key.
@@ -31,6 +33,46 @@ order:
 All three run on the default bridge network and reach each other through the
 Unraid server's address. Never forward ports 5432, 8333 or 8080 on your router;
 only HTTPS (through your reverse proxy) and the voice ports.
+
+Turn on *Autostart* for all three in the Docker tab, in the order postgresql18,
+SeaweedFS-Mnema, Mnema-Talk, with a wait of 10 seconds after the first two:
+Talk exits when the database is not up yet when it starts.
+
+## Backups
+
+`scripts/mnema-talk-backup.sh` makes a consistent backup of the three
+containers: it stops Talk and SeaweedFS for a few seconds, dumps the database
+with `pg_dump`, archives the SeaweedFS folder, copies the three Docker
+templates (they hold your secrets) and starts both again. Then it imports the
+dump into a throwaway PostgreSQL container as a restore test and writes the
+result to the Talk container's *Backup status folder*, so Admin > Status shows
+it. Copying the PostgreSQL appdata folder while the database runs is no
+backup.
+
+Install the *User Scripts* plugin, save the script to
+`/boot/config/plugins/user.scripts/mnema-talk-backup.sh`, add a user script
+with this content and schedule it daily:
+
+```sh
+#!/bin/bash
+BACKUP_DIR=/mnt/user/backups/mnema-talk KEEP_DAYS=14 \
+  bash /boot/config/plugins/user.scripts/mnema-talk-backup.sh
+```
+
+Set `PG_CONTAINER`, `S3_CONTAINER` or `TALK_CONTAINER` as well when your
+containers have other names than `postgresql18`, `SeaweedFS-Mnema` and
+`Mnema-Talk`.
+
+**Restore** a backup folder (`B` below) into the same three containers:
+
+1. Stop Mnema-Talk and SeaweedFS-Mnema.
+2. Replace the database:
+   `docker exec postgresql18 sh -c 'dropdb -U mnema --force mnema_talk && createdb -U mnema mnema_talk'`, then
+   `gunzip -c B/postgres.sql.gz | docker exec -i postgresql18 psql -U mnema -d mnema_talk -v ON_ERROR_STOP=1 -q`.
+3. Replace the media: empty the SeaweedFS-Mnema appdata folder and run
+   `tar xzf B/seaweedfs.tar.gz -C /mnt/user/appdata/seaweedfs-mnema`.
+4. Start SeaweedFS-Mnema, then Mnema-Talk. The templates in `B/templates` hold
+   the settings, including the secrets, of the backed-up install.
 
 ## Files
 
@@ -44,6 +86,7 @@ only HTTPS (through your reverse proxy) and the voice ports.
 | `ca_profile.xml` | repository profile |
 | `icon.png`, `icon-mnemo.png`, `icon-seaweedfs.png` | app icons (256x256); the SeaweedFS icon is the upstream logo (Apache-2.0) |
 | `pin-commit.sh` | pins the compose draft to the commit of `mnema-talk/` |
+| `scripts/mnema-talk-backup.sh` | nightly backup with restore test for the three-container install |
 
 Support: [Talk issues](https://github.com/mnema-xyz/talk/issues) (Talk and
 SeaweedFS-Mnema), [Mnemo issues](https://github.com/mnema-xyz/talk-mnemo-bot/issues).
